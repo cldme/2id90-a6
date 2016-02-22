@@ -266,11 +266,98 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
                         }
                     }
                 }
+                count+=amountOfDangerousDraughts(ds);
             }
         }
         return count;
     }
+    
+    private int amountOfDangerousDraughts(DraughtsState ds){
+        int amount = 0;
+        
+        int[] pieces = ds.getPieces();
+        for (int i = 1; i <= 50; i ++) {
+            if (isPieceOrKingOfColor(playerHasWhiteDraughts,pieces[i])) {
+                //subtract
+                if (i % 10 == 6) {
+                    // safe, leftmost column
+                } else if (1 <= i && i <= 5) {
+                    // safe, topmost column
+                } else if (i % 10 == 5) {
+                    // save rightmost column
+                } else if (46 <= i && i <= 50) {
+                    // save bottommost column
+                } else {
+                    // not save
+                    if (isPieceOrKingOfColor(!playerHasWhiteDraughts,pieces[i-5]) && 
+                            pieceIsEmpty(pieces[i+6])){
+                        amount--;
+                    } else if (pieceIsEmpty(pieces[i-5]) &&
+                            isPieceOrKingOfColor(!playerHasWhiteDraughts,pieces[i+6])) {
+                        amount--;
+                    } else if (isPieceOrKingOfColor(!playerHasWhiteDraughts,pieces[i-4]) && 
+                            pieceIsEmpty(pieces[i+5])){
+                        amount--;
+                    } else if (pieceIsEmpty(pieces[i-4]) &&
+                            isPieceOrKingOfColor(!playerHasWhiteDraughts,pieces[i+5])) {
+                        amount--;
+                    }
+                }
+                
+            } else if (isPieceOrKingOfColor(!playerHasWhiteDraughts,pieces[i])) {
+                //add
+                if (i % 10 == 6) {
+                    // save, leftmost column
+                } else if (1 <= i && i <= 5) {
+                    // save, topmost column
+                } else if (i % 10 == 5) {
+                    // save rightmost column
+                } else if (46 <= i && i <= 50) {
+                    // save bottommost column
+                } else {
+                    // not save
+                    if (isPieceOrKingOfColor(playerHasWhiteDraughts,pieces[i-5]) && 
+                            pieceIsEmpty(pieces[i+6])){
+                        amount++;
+                    } else if (pieceIsEmpty(pieces[i-5]) && 
+                            isPieceOrKingOfColor(playerHasWhiteDraughts,pieces[i+6])) {
+                        amount++;
+                    } else if (isPieceOrKingOfColor(playerHasWhiteDraughts,pieces[i-4]) && 
+                            pieceIsEmpty(pieces[i+5])){
+                        amount++;
+                    } else if (pieceIsEmpty(pieces[i-4]) && 
+                            isPieceOrKingOfColor(playerHasWhiteDraughts,pieces[i+5])) {
+                        amount++;
+                    }
+                }
+            }
+        } 
+        return amount;
+    }
 
+    private boolean isPieceOrKingOfColor(boolean white, int piece) {
+        if (white) {
+            if (piece == DraughtsState.WHITEPIECE || piece == DraughtsState.WHITEKING) {
+                return true;
+            }
+            return false;
+        } else {
+            //black
+            if (piece == DraughtsState.BLACKPIECE || piece == DraughtsState.BLACKKING) {
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    private boolean pieceIsEmpty(int piece) {
+        if (piece == DraughtsState.EMPTY){
+            return true;
+        }
+        return false;
+    }
+    
+    
     /*
     If it the player has white draughts, then every white piece/king should be
     counted positive.
