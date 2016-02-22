@@ -19,10 +19,17 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
     // Evaluation of last computed best move
     private int value = 0;
-        
-    public AlphaBetaPlayer1(int VALUE_KING) {
+    private EvaluationFunction evaluationFunction;
+    
+    public enum EvaluationFunction {
+        NUMBER_OF_PIECES,
+        PLACE_OF_PIECES
+    }
+    
+    public AlphaBetaPlayer1(int VALUE_KING, EvaluationFunction evaluationFunction) {
         super(UninformedPlayer.class.getResource("resources/alphabeta.png"));
         this.VALUE_KING = VALUE_KING;
+        this.evaluationFunction = evaluationFunction;
     }
     
     @Override
@@ -133,22 +140,23 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
     */
     int evaluate(DraughtsState ds) {
         int count = 0;
+        
         for (int piece : ds.getPieces()) {
             switch(piece) {
                 case DraughtsState.EMPTY:
                     ; // do nothing
                     break;
                 case DraughtsState.WHITEPIECE:
-                    count += playerHasWhiteDraughtsInt() * 1;
+                    count += playerHasWhiteDraughtsInt() * 10;
                     break;
                 case DraughtsState.BLACKPIECE:
-                    count += playerHasWhiteDraughtsInt() * -1;
+                    count += playerHasWhiteDraughtsInt() * -10;
                     break;
                 case DraughtsState.WHITEKING:
-                    count += playerHasWhiteDraughtsInt() * VALUE_KING;
+                    count += playerHasWhiteDraughtsInt() * VALUE_KING * 10;
                     break;
                 case DraughtsState.BLACKKING:
-                    count += playerHasWhiteDraughtsInt() * -VALUE_KING;
+                    count += playerHasWhiteDraughtsInt() * -VALUE_KING * 10;
                     break;
                 case DraughtsState.WHITEFIELD:
                     ; // do nothing
@@ -158,7 +166,36 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
                     break;
             }
         }
-        
+        if(this.evaluationFunction == EvaluationFunction.PLACE_OF_PIECES){
+            int[] pieces = ds.getPieces();
+            for (int i = 1; i <= 50; i++){
+                if (playerHasWhiteDraughts) {
+                    if (pieces[i] == DraughtsState.WHITEPIECE) {
+                        if (1 <= i && i <= 5) {
+                            count += 10;
+                        } else if (6 <= i && i <= 10) {
+                            count += 9;
+                        } else if (11 <= i && i <= 15) {
+                            count += 8;
+                        } else if (16 <= i && i <= 20) {
+                            count += 7;
+                        } else if (21 <= i && i <= 25) {
+                            count += 6;
+                        } else if (26 <= i && i <= 30) {
+                            count += 5;
+                        } else if (31 <= i && i <= 35) {
+                            count += 4;
+                        } else if (36 <= i && i <= 40) {
+                            count += 3;
+                        } else if (41 <= i && i <= 45) {
+                            count += 2;
+                        } else {
+                            count += 1;
+                        }
+                    }
+                }
+            }
+        }
         return count;
     }
 
@@ -199,3 +236,5 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
         return true;
     }
 }
+
+
