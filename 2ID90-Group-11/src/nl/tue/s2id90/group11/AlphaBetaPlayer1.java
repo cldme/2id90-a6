@@ -147,16 +147,16 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
                     ; // do nothing
                     break;
                 case DraughtsState.WHITEPIECE:
-                    count += playerHasWhiteDraughtsInt() * 10;
+                    count += playerHasWhiteDraughtsInt();
                     break;
                 case DraughtsState.BLACKPIECE:
-                    count += playerHasWhiteDraughtsInt() * -10;
+                    count += playerHasWhiteDraughtsInt();
                     break;
                 case DraughtsState.WHITEKING:
-                    count += playerHasWhiteDraughtsInt() * VALUE_KING * 10;
+                    count += playerHasWhiteDraughtsInt() * VALUE_KING;
                     break;
                 case DraughtsState.BLACKKING:
-                    count += playerHasWhiteDraughtsInt() * -VALUE_KING * 10;
+                    count += playerHasWhiteDraughtsInt() * -VALUE_KING;
                     break;
                 case DraughtsState.WHITEFIELD:
                     ; // do nothing
@@ -191,6 +191,78 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
                             count += 2;
                         } else {
                             count += 1;
+                        }
+                    }
+                    
+                    if (pieces[i] == DraughtsState.BLACKPIECE) {
+                        if (1 <= i && i <= 5) {
+                            count -= 1;
+                        } else if (6 <= i && i <= 10) {
+                            count -= 2;
+                        } else if (11 <= i && i <= 15) {
+                            count -= 3;
+                        } else if (16 <= i && i <= 20) {
+                            count -= 4;
+                        } else if (21 <= i && i <= 25) {
+                            count -= 5;
+                        } else if (26 <= i && i <= 30) {
+                            count -= 6;
+                        } else if (31 <= i && i <= 35) {
+                            count -= 7;
+                        } else if (36 <= i && i <= 40) {
+                            count -= 8;
+                        } else if (41 <= i && i <= 45) {
+                            count -= 9;
+                        } else {
+                            count -= 10;
+                        }
+                    }
+                } else { // player has black draughts
+                    if (pieces[i] == DraughtsState.BLACKPIECE) {
+                        if (1 <= i && i <= 5) {
+                            count += 10;
+                        } else if (6 <= i && i <= 10) {
+                            count += 9;
+                        } else if (11 <= i && i <= 15) {
+                            count += 8;
+                        } else if (16 <= i && i <= 20) {
+                            count += 7;
+                        } else if (21 <= i && i <= 25) {
+                            count += 6;
+                        } else if (26 <= i && i <= 30) {
+                            count += 5;
+                        } else if (31 <= i && i <= 35) {
+                            count += 4;
+                        } else if (36 <= i && i <= 40) {
+                            count += 3;
+                        } else if (41 <= i && i <= 45) {
+                            count += 2;
+                        } else {
+                            count += 1;
+                        }
+                    }
+                    
+                    if (pieces[i] == DraughtsState.WHITEPIECE) {
+                        if (1 <= i && i <= 5) {
+                            count -= 1;
+                        } else if (6 <= i && i <= 10) {
+                            count -= 2;
+                        } else if (11 <= i && i <= 15) {
+                            count -= 3;
+                        } else if (16 <= i && i <= 20) {
+                            count -= 4;
+                        } else if (21 <= i && i <= 25) {
+                            count -= 5;
+                        } else if (26 <= i && i <= 30) {
+                            count -= 6;
+                        } else if (31 <= i && i <= 35) {
+                            count -= 7;
+                        } else if (36 <= i && i <= 40) {
+                            count -= 8;
+                        } else if (41 <= i && i <= 45) {
+                            count -= 9;
+                        } else {
+                            count -= 10;
                         }
                     }
                 }
