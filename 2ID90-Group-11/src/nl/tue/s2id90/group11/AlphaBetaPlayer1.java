@@ -1,8 +1,5 @@
 package nl.tue.s2id90.group11;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import nl.tue.s2id90.draughts.DraughtsState;
 import nl.tue.s2id90.draughts.player.DraughtsPlayer;
 import org10x10.dam.game.Move;
@@ -13,40 +10,38 @@ import org10x10.dam.game.Move;
  */
 public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
-    private final int STARTING_DEPTH = 10;
-
-    private boolean isWhite;
+    private final int STARTING_DEPTH = 8;
+    private final int VALUE_KING;
+    
+    private boolean playerHasWhiteDraughts;
     private boolean stopped = false;
     private int maxDepth;
 
     // Evaluation of last computed best move
     private int value = 0;
-
-    // Possible nodes for next turn
-    private List<GameNode> nextNodes = new ArrayList();
-
+        
+    public AlphaBetaPlayer1(int VALUE_KING) {
+        super(UninformedPlayer.class.getResource("resources/alphabeta.png"));
+        this.VALUE_KING = VALUE_KING;
+    }
+    
+    @Override
+    /** generate name for player based on class name. **/
+    public String getName() {
+        return getClass().getSimpleName() + VALUE_KING;
+    }
+    
     @Override
     public Move getMove(DraughtsState s) {
-        // Only in start of game:
-        if (isStartingState(s)) {
-            this.maxDepth = this.STARTING_DEPTH;
-            this.isWhite = s.isWhiteToMove();
+        // determine color of player's draughts
+        if (isFirstMoveForPlayer(s)) {
+            this.playerHasWhiteDraughts = s.isWhiteToMove();
         }
-
+        
+        resetMaxDepth();
+        
         // First pick a random move so always a move is returned.
         Move bestMove = s.getMoves().get(0);
-
-        // If next nodes already have been computed, you can already determine
-        // best move.
-        for (GameNode node : this.nextNodes) {
-            if (Arrays.equals(node.getGameState().getPieces(), s.getPieces())) {
-                bestMove = node.getBestMove();
-                System.out.println("Took precomputed move");
-                this.maxDepth++;
-                break;
-            }
-        }
-        this.nextNodes.clear();
 
         boolean foundMove = false;
         try {
@@ -61,19 +56,20 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
                 bestMove = startingNode.getBestMove();
                 foundMove = true;
-                this.maxDepth++;
+                maxDepth += 1;
             }
         } catch (AIStoppedException e) { // Player stopped by competition     
         }
 
-        this.maxDepth--;        
         if (!foundMove) {
             System.out.println("Took random move");
-            // If no move was found decrement depth again
-            this.maxDepth--;
         }
         
         return bestMove;
+    }
+    
+    private void resetMaxDepth(){
+        this.maxDepth = this.STARTING_DEPTH;
     }
 
     @Override
@@ -83,7 +79,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
     @Override
     public void stop() {
-        stopped = true;
+        this.stopped = true;
     }
 
     int alphaBeta(GameNode node, int alpha, int beta) throws AIStoppedException {
@@ -94,95 +90,112 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
         DraughtsState state = node.getGameState();
 
-        // If there is only one move, next turn is a better representation
-        if (isLeaf(node) && state.getMoves().size() != 1) {
-            return evaluate(node);
-        }
+        if (isLeaf(node)) {
+            return evaluate(node.getGameState());
+        } else {
+            for (Move move : state.getMoves()) {
+                state.doMove(move);
 
-        for (Move move : state.getMoves()) {
-            state.doMove(move);
+                GameNode childNode = new GameNode(state, node.getDepth() + 1);
+                int result = alphaBeta(childNode, alpha, beta);
 
-            GameNode childNode = new GameNode(state, node.getDepth() + 1);
+                state.undoMove(move);
 
-            int result = alphaBeta(childNode, alpha, beta);
-
-            state.undoMove(move);
-
-            if (this.isWhite == state.isWhiteToMove()) { // max level                
-                // Keep nodes on depth of 3.
-                if (node.getDepth() == 3) {
-                    this.nextNodes.add(childNode);
-                }
-
-                if (result > alpha) {
-                    alpha = result;
-                    node.setBestMove(move);
-                }
-                if (alpha >= beta) {
-                    return beta;
-                }
-            } else { // min level
-                if (result < beta) {
-                    beta = result;
-                }
-                if (beta <= alpha) {
-                    return alpha;
+                if (this.playerHasWhiteDraughts == state.isWhiteToMove()) { // max level                
+                    if (result > alpha) {
+                        alpha = result;
+                        node.setBestMove(move);
+                    }
+                    if (alpha >= beta) {
+                        return beta;
+                    }
+                } else { // min level
+                    if (result < beta) {
+                        beta = result;
+                        node.setBestMove(move);
+                    }
+                    if (beta <= alpha) {
+                        return alpha;
+                    }
                 }
             }
         }
 
-        if (this.isWhite == state.isWhiteToMove()) {
+        if (this.playerHasWhiteDraughts == state.isWhiteToMove()) { // max level
             return alpha;
-        } else {
+        } else { // min level
             return beta;
         }
     }
 
-    int evaluate(GameNode node) {
-        DraughtsState state = node.getGameState();
+    /*
+    Evaluate value of draughts state
+    */
+    int evaluate(DraughtsState ds) {
         int count = 0;
-        for (int piece : state.getPieces()) {
-            if (piece == 1) {
-                if (this.isWhite) {
-                    count += 1;
-                } else {
-                    count -= 1;
-                }
-            } else if (piece == 2) {
-                if (this.isWhite) {
-                    count -= 1;
-                } else {
-                    count += 1;
-                }
-            } else if (piece == 3) {
-                if (this.isWhite) {
-                    count += 2;
-                } else {
-                    count -= 2;
-                }
-            } else if (piece == 4) {
-                if (this.isWhite) {
-                    count -= 2;
-                } else {
-                    count += 2;
-                }
+        for (int piece : ds.getPieces()) {
+            switch(piece) {
+                case DraughtsState.EMPTY:
+                    ; // do nothing
+                    break;
+                case DraughtsState.WHITEPIECE:
+                    count += playerHasWhiteDraughtsInt() * 1;
+                    break;
+                case DraughtsState.BLACKPIECE:
+                    count += playerHasWhiteDraughtsInt() * -1;
+                    break;
+                case DraughtsState.WHITEKING:
+                    count += playerHasWhiteDraughtsInt() * VALUE_KING;
+                    break;
+                case DraughtsState.BLACKKING:
+                    count += playerHasWhiteDraughtsInt() * -VALUE_KING;
+                    break;
+                case DraughtsState.WHITEFIELD:
+                    ; // do nothing
+                    break;
+                default:
+                    System.out.println("Unknown piece " + piece);
+                    break;
             }
         }
+        
         return count;
     }
 
+    /*
+    If it the player has white draughts, then every white piece/king should be
+    counted positive.
+    On the other hand, if the player does not have white draughts, i.e. it has 
+    black draughts, every white piece/king should be counted negative. 
+    */
+    private int playerHasWhiteDraughtsInt() {
+        if (this.playerHasWhiteDraughts) {
+            return 1;
+        }
+        return -1;
+    }
+
+    /*
+    Returns true iff the depth is greater than the max depth or it is the endstate
+    False otherwise
+    */
     private boolean isLeaf(GameNode node) {
         return node.getDepth() >= this.maxDepth || node.getGameState().isEndState();
     }
 
-    private boolean isStartingState(DraughtsState s) {
+    /* Checks whether all black pieces are still in original place.
+    Since white starts, only after both players played their first move, this will
+    evaluate to false.
+    */
+    private boolean isFirstMoveForPlayer(DraughtsState s) {
         int[] pieces = s.getPieces();
-        // Checks that all black dams are in their starting state.
-        for (int i = 1; i < 20; i++) {
-            if (pieces[i] != 2) {
+
+        for (int i = 1; i <= 20 ; i ++) {
+            if (pieces[i] != DraughtsState.BLACKPIECE) {
                 return false;
             }
         }
+        
         return true;
     }
 }
