@@ -37,7 +37,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
     @Override
     /** generate name for player based on class name. **/
     public String getName() {
-        return getClass().getSimpleName() + " " + VALUE_KING + " " + 
+        return "AB " + VALUE_KING + " " + 
                 evaluationFunction.toString();
     }
     
