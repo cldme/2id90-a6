@@ -25,6 +25,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
         NR_OF_PIECES,
         PLACE_OF_PIECES,
         NR_OF_DANGEROUS_PIECES,
+        NR_AND_PLACES,
         ALL
     }
     
@@ -108,6 +109,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
                 
                 GameNode childNode = new GameNode(state, node.getDepth() + 1);
                 int result = alphaBeta(childNode, alpha, beta);
+                
                 state.undoMove(move);
 
                 if (this.playerHasWhiteDraughts == state.isWhiteToMove()) { // max level                
@@ -143,7 +145,12 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
     int evaluate(int[] pieces) {
         int count = 0;
         
-        if (this.evaluationFunction == EvaluationFunction.NR_OF_PIECES ||
+        if (this.evaluationFunction == EvaluationFunction.NR_AND_PLACES ||
+                this.evaluationFunction == EvaluationFunction.ALL) {
+            count += numberAndPlacesOfPieces(pieces);
+        }
+        
+        /*if (this.evaluationFunction == EvaluationFunction.NR_OF_PIECES ||
                 this.evaluationFunction == EvaluationFunction.ALL) {
             count += numberOfPieces(pieces);
         }
@@ -151,13 +158,42 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
         if(this.evaluationFunction == EvaluationFunction.PLACE_OF_PIECES ||
                 this.evaluationFunction == EvaluationFunction.ALL){
             count += placeOfPieces(pieces);
-        }
+        }*/
             
         if (evaluationFunction == EvaluationFunction.NR_OF_DANGEROUS_PIECES ||
                 evaluationFunction == EvaluationFunction.ALL) {
             count += amountOfDangerousDraughts(pieces);
         }
         
+        return count;
+    }
+    
+    
+   private int numberAndPlacesOfPieces(int[] pieces) {
+        int count = 0;
+        int[] costMatrix =
+            {3,3,3,3,3,
+             1,1,1,1,1,
+             2,2,2,2,3,
+             4,3,3,3,3,
+             4,4,4,4,5,
+             6,5,5,5,5,
+             6,6,6,6,7,
+             8,7,7,7,7,
+             8,8,8,8,8,
+             9,9,9,9,9};
+       
+        for (int i = 1; i <= 50; i++) {
+            if (pieces[i] == DraughtsState.WHITEPIECE) {
+                count += costMatrix[50-i] * playerHasWhiteDraughtsInt();
+            } else if (pieces[i] == DraughtsState.BLACKPIECE){
+                count -= costMatrix[i-1] * playerHasWhiteDraughtsInt();
+            } else if (pieces[i] == DraughtsState.WHITEKING){
+                count += costMatrix[50-i] * playerHasWhiteDraughtsInt() * VALUE_KING;
+            } else if (pieces[i] == DraughtsState.BLACKKING){
+                count -= costMatrix[i-1] * playerHasWhiteDraughtsInt() * VALUE_KING;
+            }
+        }
         return count;
     }
     
