@@ -182,9 +182,9 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
             } else if (pieces[i] == DraughtsState.BLACKPIECE){
                 count -= costMatrix[i-1] * playerHasWhiteDraughtsInt();
             } else if (pieces[i] == DraughtsState.WHITEKING){
-                count += costMatrix[50-i] * playerHasWhiteDraughtsInt() * VALUE_KING;
+                count += playerHasWhiteDraughtsInt() * VALUE_KING * 10;
             } else if (pieces[i] == DraughtsState.BLACKKING){
-                count -= costMatrix[i-1] * playerHasWhiteDraughtsInt() * VALUE_KING;
+                count -= playerHasWhiteDraughtsInt() * VALUE_KING * 10;
             }
         }
         return count;
