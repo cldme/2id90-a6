@@ -101,7 +101,8 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
         DraughtsState state = node.getGameState();
         
-        if (isLeaf(node)) {
+        // If there is only one move, next turn is a better representation
+        if (isLeaf(node) && state.getMoves().size() != 1) {
             return evaluate(node.getGameState().getPieces());
         } else {
             for (Move move : state.getMoves()) {
