@@ -10,7 +10,7 @@ import org10x10.dam.game.Move;
  */
 public class AlphaBetaPlayer1 extends DraughtsPlayer {
 
-    private final int STARTING_DEPTH = 8;
+    private final int STARTING_DEPTH = 6;
     private final int VALUE_KING;
     
     private boolean playerHasWhiteDraughts;
