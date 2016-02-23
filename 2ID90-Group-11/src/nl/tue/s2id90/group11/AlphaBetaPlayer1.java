@@ -22,9 +22,9 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
     private EvaluationFunction evaluationFunction;
     
     public enum EvaluationFunction {
-        NUMBER_OF_PIECES,
+        NR_OF_PIECES,
         PLACE_OF_PIECES,
-        NUMBER_OF_DANGEROUS_PIECES,
+        NR_OF_DANGEROUS_PIECES,
         ALL
     }
     
@@ -57,7 +57,6 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
         try {
             // Iterative Deepening     
             while (true) {
-                System.out.println("depth: " + this.maxDepth);
                 GameNode startingNode = new GameNode(s, 1);
 
                 // Execute alpha beta algorithm
@@ -65,6 +64,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
                         Integer.MAX_VALUE);
 
                 bestMove = startingNode.getBestMove();
+                System.out.println("depth: " + this.maxDepth);
                 foundMove = true;
                 maxDepth += 1;
             }
@@ -99,16 +99,15 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
         }
 
         DraughtsState state = node.getGameState();
-
+        
         if (isLeaf(node)) {
             return evaluate(node.getGameState().getPieces());
         } else {
             for (Move move : state.getMoves()) {
                 state.doMove(move);
-
+                
                 GameNode childNode = new GameNode(state, node.getDepth() + 1);
                 int result = alphaBeta(childNode, alpha, beta);
-
                 state.undoMove(move);
 
                 if (this.playerHasWhiteDraughts == state.isWhiteToMove()) { // max level                
@@ -144,7 +143,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
     int evaluate(int[] pieces) {
         int count = 0;
         
-        if (this.evaluationFunction == EvaluationFunction.NUMBER_OF_PIECES ||
+        if (this.evaluationFunction == EvaluationFunction.NR_OF_PIECES ||
                 this.evaluationFunction == EvaluationFunction.ALL) {
             count += numberOfPieces(pieces);
         }
@@ -154,7 +153,7 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
             count += placeOfPieces(pieces);
         }
             
-        if (evaluationFunction == EvaluationFunction.NUMBER_OF_DANGEROUS_PIECES ||
+        if (evaluationFunction == EvaluationFunction.NR_OF_DANGEROUS_PIECES ||
                 evaluationFunction == EvaluationFunction.ALL) {
             count += amountOfDangerousDraughts(pieces);
         }
