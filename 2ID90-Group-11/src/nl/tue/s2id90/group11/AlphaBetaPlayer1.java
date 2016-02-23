@@ -26,7 +26,9 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
         PLACE_OF_PIECES,
         NR_OF_DANGEROUS_PIECES,
         NR_AND_PLACES,
-        ALL
+        ALL,
+        PIETER,
+        MARTIN
     }
     
     public AlphaBetaPlayer1(int VALUE_KING, EvaluationFunction evaluationFunction) {
@@ -146,26 +148,16 @@ public class AlphaBetaPlayer1 extends DraughtsPlayer {
     int evaluate(int[] pieces) {
         int count = 0;
         
-        if (this.evaluationFunction == EvaluationFunction.NR_AND_PLACES ||
-                this.evaluationFunction == EvaluationFunction.ALL) {
+        if (this.evaluationFunction == EvaluationFunction.MARTIN) {
             count += numberAndPlacesOfPieces(pieces);
         }
         
-        /*if (this.evaluationFunction == EvaluationFunction.NR_OF_PIECES ||
-                this.evaluationFunction == EvaluationFunction.ALL) {
+        if (this.evaluationFunction == EvaluationFunction.PIETER) {
             count += numberOfPieces(pieces);
-        }
-        
-        if(this.evaluationFunction == EvaluationFunction.PLACE_OF_PIECES ||
-                this.evaluationFunction == EvaluationFunction.ALL){
             count += placeOfPieces(pieces);
-        }*/
-            
-        if (evaluationFunction == EvaluationFunction.NR_OF_DANGEROUS_PIECES ||
-                evaluationFunction == EvaluationFunction.ALL) {
             count += amountOfDangerousDraughts(pieces);
         }
-        
+            
         return count;
     }
     
