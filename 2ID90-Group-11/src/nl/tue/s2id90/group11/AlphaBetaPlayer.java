@@ -22,12 +22,13 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         5, 4, 4, 4, 4,
         3, 3, 3, 3, 4,
         3, 2, 2, 2, 2,
-        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 2,
         3, 3, 3, 3, 3};
 
     private final String name;
     private final int valueKing;
     private final EvaluationFunction evaluationFunction;
+    private final boolean checkCaptures;
 
     private boolean isWhite;
     private boolean stopped = false;
@@ -41,11 +42,12 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         NR_PLACES_DANGEROUS,
     }
 
-    public AlphaBetaPlayer(String name, int valueKing, EvaluationFunction evaluationFunction) {
+    public AlphaBetaPlayer(String name, int valueKing, EvaluationFunction evaluationFunction, boolean checkCaptures) {
         super(UninformedPlayer.class.getResource("resources/alphabeta.png"));
         this.name = name;
         this.valueKing = valueKing;
         this.evaluationFunction = evaluationFunction;
+        this.checkCaptures = checkCaptures;
     }
 
     @Override
@@ -163,8 +165,7 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
                 || this.evaluationFunction == EvaluationFunction.NR_PLACES_DANGEROUS) {
             count += numberAndPlacesOfPieces(state);
         }
-
-        if (this.evaluationFunction == EvaluationFunction.NR_PLACES
+        if (this.evaluationFunction == EvaluationFunction.DANGEROUS
                 || this.evaluationFunction == EvaluationFunction.NR_PLACES_DANGEROUS) {
             count += amountOfDangerousDraughts(state);
         }
@@ -174,6 +175,7 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
 
     private int numberAndPlacesOfPieces(DraughtsState s) {
         int[] pieces = s.getPieces();
+
         int playerCorrection = this.isWhite ? 1 : -1;
 
         int count = 0;
@@ -259,14 +261,16 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         return amount;
     }
 
+    /**
+     * Returns whether piece is white.
+     */
     private boolean isPieceOrKingOfColor(boolean white, int piece) {
         if (white) {
             if (piece == DraughtsState.WHITEPIECE || piece == DraughtsState.WHITEKING) {
                 return true;
             }
             return false;
-        } else {
-            //black
+        } else { //black
             if (piece == DraughtsState.BLACKPIECE || piece == DraughtsState.BLACKKING) {
                 return true;
             }
@@ -274,6 +278,9 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         }
     }
 
+    /**
+     * Returns whether piece is empty.
+     */
     private boolean pieceIsEmpty(int piece) {
         if (piece == DraughtsState.EMPTY) {
             return true;
@@ -281,13 +288,14 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         return false;
     }
 
-    /*
-     If it the player has white draughts, then every white piece/king should be
-     counted positive.
-     On the other hand, if the player does not have white draughts, i.e. it has 
-     black draughts, every white piece/king should be counted negative. 
+    /**
+     * Returns 1 if player is white, else returns -1.
      */
     private int playerHasWhiteDraughtsInt() {
+        // If it the player has white draughts, then every white piece/king 
+        // should be counted positive.
+        // On the other hand, if the player does not have white draughts, 
+        // every white piece/king should be counted negative. 
         if (this.isWhite) {
             return 1;
         }
@@ -305,6 +313,9 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
      * Returns whether at least one of the moves captures an opponents piece.
      */
     private boolean containsCapture(List<Move> moves) {
+        if (!this.checkCaptures) {
+            return false;
+        }
         for (Move move : moves) {
             if (move.isCapture()) {
                 return true;

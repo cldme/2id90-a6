@@ -20,8 +20,8 @@ public class MyDraughtsPlugin extends DraughtsPlayerProvider implements Draughts
         // During the final competition you should make only your 
         // best player available. For testing it might be handy
         // to make more than one player available.
-        super(new OptimisticPlayer(),
-                new AlphaBetaPlayer("MartinPlayer", 100, AlphaBetaPlayer.EvaluationFunction.NR_PLACES),
-                new AlphaBetaPlayer("PieterPlayer", 100, AlphaBetaPlayer.EvaluationFunction.NR_PLACES_DANGEROUS));
+        super(new OptimisticPlayer(), new StupidPlayer(), new UninformedPlayer(),
+                new AlphaBetaPlayer("MartinPlayer", 100, AlphaBetaPlayer.EvaluationFunction.NR_PLACES, true),
+                new AlphaBetaPlayer("PieterPlayer", 100, AlphaBetaPlayer.EvaluationFunction.NR_PLACES_DANGEROUS, false));
     }
 }
