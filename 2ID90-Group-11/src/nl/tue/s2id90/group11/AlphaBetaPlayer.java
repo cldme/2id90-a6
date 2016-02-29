@@ -155,9 +155,9 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
     }
 
     /**
-     * Evaluate value of node.
+     * Evaluates value of node.
      */
-    int evaluate(GameNode node) {
+    private int evaluate(GameNode node) {
         DraughtsState state = node.getGameState();
 
         int count = 0;
@@ -173,6 +173,9 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         return count;
     }
 
+    /**
+     * Evaluation function that looks at number and places of pieces.
+     */
     private int numberAndPlacesOfPieces(DraughtsState s) {
         int[] pieces = s.getPieces();
 
@@ -198,6 +201,9 @@ public class AlphaBetaPlayer extends DraughtsPlayer {
         return count;
     }
 
+    /**
+     * Evaluation function that looks at which pieces can be captured.
+     */
     private int amountOfDangerousDraughts(DraughtsState s) {
         int[] pieces = s.getPieces();
 
